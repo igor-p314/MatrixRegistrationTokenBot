@@ -254,7 +254,7 @@ internal class MatrixService
             roomKey,
             new FormattedMessage(
                 $"Токен успешно создан. Срок действия: <b>{expiresAtStr}</b>. Токен:",
-                registrationToken),
+                $"Токен успешно создан. Срок действия: {expiresAtStr}. Токен:"),
             cancellationToken).ConfigureAwait(false);
         await SendToRoomAsync(roomKey, new Message(registrationToken), cancellationToken).ConfigureAwait(false);
 
