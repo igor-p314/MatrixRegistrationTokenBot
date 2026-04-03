@@ -249,7 +249,7 @@ internal class MatrixService
         string sender,
         CancellationToken cancellationToken)
     {
-        var expiresAtStr = expiresAt.ToString("dd MMMM yyyy 'г.' HH:m (UTC)");
+        var expiresAtStr = expiresAt.ToString("dd MMMM yyyy 'г.' HH:mm (UTC)");
         await SendToRoomAsync(
             roomKey,
             new FormattedMessage(
