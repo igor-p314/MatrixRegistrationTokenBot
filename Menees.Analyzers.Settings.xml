@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Menees.Analyzers.Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:noNamespaceSchemaLocation="Menees.Analyzers.Settings.xsd">
+  <MaxMethodLines>150</MaxMethodLines>
+  <AllowedNumericLiterals>
+    <Literal>0</Literal>
+    <Literal>1</Literal>
+    <Literal>10</Literal>
+    <Literal>100</Literal>
+    <Literal>1000</Literal>
+    <Literal>1000000</Literal>
+  </AllowedNumericLiterals>
+</Menees.Analyzers.Settings>
