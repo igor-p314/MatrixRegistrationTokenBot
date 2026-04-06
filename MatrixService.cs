@@ -3,7 +3,6 @@ using MatrixRegistrationTokenBot.Matrix;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
@@ -18,7 +17,9 @@ namespace MatrixRegistrationTokenBot;
 /// </summary>
 internal class MatrixService
 {
-    internal static readonly string[] TokenCommands = ["!token", "!t", "!tkn"];
+    internal static readonly string[] TokenCommands = ["!token ", "!t ", "!tkn "];
+    internal static readonly Message TokenHelpMessage = new(
+        "Для создания токена регистрации, отправьте сообщение, начинающееся на !token");
 
     private const int MaxAllowedUsersInRoom = 2;
 
@@ -179,7 +180,7 @@ internal class MatrixService
 
     private ValueTask RespondWrongCommandAsync(string roomKey, CancellationToken cancellationToken)
     {
-        return SendToRoomAsync(roomKey, Messages.TokenHelpMessage, cancellationToken);
+        return SendToRoomAsync(roomKey, TokenHelpMessage, cancellationToken);
     }
 
     private async ValueTask SendToRoomAsync(string roomKey, Message message, CancellationToken cancellationToken)
@@ -204,11 +205,11 @@ internal class MatrixService
         {
             Log.Information("Успешная авторизация в MAS");
 
-            var registrationToken = Guid.NewGuid().ToString("N");
             var expiresAt = _timeProvider.GetUtcNow().AddDays(1);
 
             var request = new RegistrationTokenRequest
             {
+                Token = Guid.NewGuid().ToString("N"),
                 UsageLimit = _tokenUsageLimit,
                 ExpiresAt = expiresAt.ToString("o"),
             };
@@ -217,7 +218,7 @@ internal class MatrixService
             if (result.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK)
             {
                 Log.Information("Создан токен регистрации");
-                await SendTokenSuccessToRoomsAsync(roomKey, registrationToken, expiresAt, sender, cancellationToken).ConfigureAwait(false);
+                await SendTokenSuccessToRoomsAsync(roomKey, request.Token, expiresAt, sender, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -253,8 +254,8 @@ internal class MatrixService
         await SendToRoomAsync(
             roomKey,
             new FormattedMessage(
-                $"Токен успешно создан. Срок действия: <b>{expiresAtStr}</b>. Токен:",
-                $"Токен успешно создан. Срок действия: {expiresAtStr}. Токен:"),
+                $"Токен успешно создан. Срок действия 24 часа до <b>{expiresAtStr}</b>. Токен:",
+                $"Токен успешно создан. Срок действия 24 часа до {expiresAtStr}. Токен:"),
             cancellationToken).ConfigureAwait(false);
         await SendToRoomAsync(roomKey, new Message(registrationToken), cancellationToken).ConfigureAwait(false);
 
