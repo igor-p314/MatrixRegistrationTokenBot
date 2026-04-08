@@ -17,7 +17,7 @@ namespace MatrixRegistrationTokenBot;
 /// </summary>
 internal class MatrixService
 {
-    internal static readonly string[] TokenCommands = ["!token ", "!t ", "!tkn "];
+    internal static readonly string[] TokenCommands = ["!token", "!tkn"];
     internal static readonly Message TokenHelpMessage = new(
         "Для создания токена регистрации, отправьте сообщение, начинающееся на !token");
 
