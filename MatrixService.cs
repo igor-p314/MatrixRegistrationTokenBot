@@ -118,13 +118,20 @@ internal class MatrixService
 
                 foreach (var (roomKey, text, sender) in messages)
                 {
-                    if (TokenCommands.Any(text.StartsWith))
+                    if (_httpService.HomeServerUrl.Equals(GetMatrixServerName(sender), StringComparison.OrdinalIgnoreCase))
                     {
-                        await ProcessTokenCommandAsync(roomKey, sender, cancellationToken).ConfigureAwait(false);
+                        if (TokenCommands.Any(text.StartsWith))
+                        {
+                            await ProcessTokenCommandAsync(roomKey, sender, cancellationToken).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await RespondWrongCommandAsync(roomKey, cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     else
                     {
-                        await RespondWrongCommandAsync(roomKey, cancellationToken).ConfigureAwait(false);
+                        await LeaveRoomAsync(roomKey, cancellationToken).ConfigureAwait(false);
                     }
                 }
 
