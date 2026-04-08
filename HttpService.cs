@@ -27,9 +27,11 @@ internal class HttpService
 
     internal int TimeOutMilliseconds { get; set; } = 30000;
 
+    internal string HomeServerUrl { get; }
+
     public HttpService()
     {
-        var homeServerUrl = Environment.GetEnvironmentVariable("MATRIX_HOMESERVER_URL")
+        HomeServerUrl = Environment.GetEnvironmentVariable("MATRIX_HOMESERVER_URL")
             ?? throw new InvalidOperationException("Не задана переменная среды MATRIX_HOMESERVER_URL");
 
         var adminBasicToken = Environment.GetEnvironmentVariable("MATRIX_BOT_ADMIN_BASIC_AUTH")
@@ -44,12 +46,12 @@ internal class HttpService
         _matrixHttpClient = new HttpClient()
         {
             Timeout = TimeSpan.FromMilliseconds(TimeOutMilliseconds + 1000),
-            BaseAddress = new Uri($"https://{MatrixPrefix}.{homeServerUrl}"),
+            BaseAddress = new Uri($"https://{MatrixPrefix}.{HomeServerUrl}"),
         };
 
         _masForTokenOnlyHttpClient = new HttpClient()
         {
-            BaseAddress = new Uri($"https://{MasPrefix}.{homeServerUrl}"),
+            BaseAddress = new Uri($"https://{MasPrefix}.{HomeServerUrl}"),
             DefaultRequestHeaders =
             {
                 { "Authorization", "Basic " + adminBasicToken },
@@ -58,7 +60,7 @@ internal class HttpService
 
         _masHttpClient = new HttpClient()
         {
-            BaseAddress = new Uri($"https://{MasPrefix}.{homeServerUrl}"),
+            BaseAddress = new Uri($"https://{MasPrefix}.{HomeServerUrl}"),
         };
     }
 

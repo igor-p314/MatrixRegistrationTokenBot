@@ -53,6 +53,11 @@ internal class MatrixService
         await ConnectToServerAsync(authorizationService, cancellationToken).ConfigureAwait(false);
     }
 
+    private static string GetMatrixServerName(string matrixUserId)
+    {
+        return matrixUserId.Split(':').LastOrDefault() ?? throw new InvalidOperationException($"{matrixUserId} - неверный идентификатор пользователя.");
+    }
+
     private async ValueTask ConnectToServerAsync(AuthorizationService authorizationService, CancellationToken cancellationToken)
     {
         string? batchFromFile = await _tokenService.GetAsync(cancellationToken).ConfigureAwait(false);
@@ -146,7 +151,11 @@ internal class MatrixService
             var membersCount = invite.Value.InviteState.Events.Count(e => e.Type == "m.room.member");
             var roomName = invite.Value.InviteState.Events.FirstOrDefault(e => e.Type == "m.room.name")?.Content?.Name ?? "Unknown";
             var isEncrypted = invite.Value.InviteState.Events.Any(e => e.Type == "m.room.encryption");
-            if (membersCount == MaxAllowedUsersInRoom && !isEncrypted)
+            var sender = invite.Value.InviteState.Events.FirstOrDefault(e => e.Content?.Membership == "invite")?.Sender ?? string.Empty;
+
+            if (membersCount == MaxAllowedUsersInRoom
+                && !isEncrypted
+                && _httpService.HomeServerUrl.Equals(GetMatrixServerName(sender), StringComparison.OrdinalIgnoreCase))
             {
                 Task.Run(() => JoinDirectRoomAsync(invite.Key, cancellationToken));
             }
@@ -154,7 +163,8 @@ internal class MatrixService
             {
                 Task.Run(() => LeaveRoomAsync(invite.Key, cancellationToken));
                 Log.Information(
-                    "Отклонено приглашение в комнату '{roomName}'. Количество участников: {membersCount}, IsEncrypted = {isEncrypted}.",
+                    "Отклонено приглашение от {sender} в комнату '{roomName}'. Количество участников: {membersCount}, IsEncrypted = {isEncrypted}.",
+                    sender,
                     roomName,
                     membersCount,
                     isEncrypted);
